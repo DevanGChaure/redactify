@@ -3,6 +3,7 @@ import os
 
 DB_PATH = os.path.join(os.path.dirname(__file__), "..", "redactify.db")
 
+
 def update_pii_count(doc_id, count):
     conn = get_connection()
     conn.execute(
@@ -11,6 +12,7 @@ def update_pii_count(doc_id, count):
     )
     conn.commit()
     conn.close()
+
 
 def get_connection():
     conn = sqlite3.connect(DB_PATH)
@@ -46,6 +48,7 @@ def get_document(doc_id):
     ).fetchone()
     conn.close()
     return dict(row) if row else None
+
 
 def init_db():
     conn = get_connection()

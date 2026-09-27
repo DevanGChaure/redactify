@@ -2,17 +2,11 @@ import os
 import uuid
 from flask import Flask, render_template, request, redirect, url_for, jsonify
 
-from database.db import init_db, insert_document, get_all_documents, get_document, update_extracted_text
-from redaction.detector import extract_text
-
-from redaction.regex_detector import detect_regex_pii
 from database.db import (
     init_db, insert_document, get_all_documents,
-    get_document, update_extracted_text, update_pii_count
+    update_extracted_text, update_pii_count
 )
-
 from redaction.detector import extract_text, detect_all_pii
-
 app = Flask(__name__)
 app.config["UPLOAD_FOLDER"] = os.path.join(os.path.dirname(__file__), "uploads")
 

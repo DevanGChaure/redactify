@@ -1,9 +1,6 @@
-import os
-import sys
-
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
+import io
 import pytest
+from PIL import Image
 from app import app
 from database.db import init_db
 
@@ -16,6 +13,14 @@ def client():
         yield c
 
 
+def make_test_image():
+    img = Image.new("RGB", (100, 50), color="white")
+    buf = io.BytesIO()
+    img.save(buf, format="PNG")
+    buf.seek(0)
+    return buf
+
+
 def test_health(client):
     response = client.get("/health")
     assert response.status_code == 200
@@ -24,16 +29,15 @@ def test_health(client):
 
 def test_upload_valid_file(client):
     data = {
-        "document": (open(os.path.join(os.path.dirname(__file__), "fixtures", "sample.png"), "rb"), "sample.png")
+        "document": (make_test_image(), "sample.png")
     }
     response = client.post("/upload", data=data, content_type="multipart/form-data")
     assert response.status_code in (200, 302)
 
 
 def test_upload_invalid_file_rejected(client):
-    from io import BytesIO
     data = {
-        "document": (BytesIO(b"not a real file"), "malware.exe")
+        "document": (io.BytesIO(b"not a real file"), "malware.exe")
     }
     response = client.post("/upload", data=data, content_type="multipart/form-data")
     assert response.status_code == 400
