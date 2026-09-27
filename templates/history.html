@@ -5,7 +5,7 @@
     <tr><th>Document</th><th>PII</th><th>Status</th><th>Created</th></tr>
     {% for doc in documents %}
     <tr>
-        <td>{{ doc.original_filename }}</td>
+        <td><a href="{{ url_for('review', doc_id=doc.id) }}">{{ doc.original_filename }}</a></td>
         <td>{{ doc.pii_count }}</td>
         <td>{{ doc.status }}</td>
         <td>{{ doc.created_at }}</td>

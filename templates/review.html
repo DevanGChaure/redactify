@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>{{ doc.original_filename }}</h2>
+<p>{{ detections|length }} items detected</p>
+
+<table>
+    <tr><th>Type</th><th>Value</th><th>Confidence</th><th>Method</th></tr>
+    {% for d in detections %}
+    <tr>
+        <td>{{ d.type }}</td>
+        <td>{{ d.text }}</td>
+        <td>{{ (d.confidence * 100)|round }}%</td>
+        <td>{{ d.method }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

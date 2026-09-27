@@ -1,10 +1,11 @@
 import os
 import uuid
+import json
 from flask import Flask, render_template, request, redirect, url_for, jsonify
 
 from database.db import (
-    init_db, insert_document, get_all_documents,
-    update_extracted_text, update_pii_count
+    init_db, insert_document, get_all_documents, get_document,
+    update_extracted_text, update_pii_count, update_pii_detections
 )
 from redaction.detector import extract_text, detect_all_pii
 app = Flask(__name__)
@@ -57,6 +58,7 @@ def upload():
         update_extracted_text(doc_id, text, status="extracted")
         detections = detect_all_pii(text)
         update_pii_count(doc_id, len(detections))
+        update_pii_detections(doc_id, json.dumps(detections))
     except Exception:
         update_extracted_text(doc_id, "", status="extraction_failed")
 
@@ -67,6 +69,15 @@ def upload():
 def history():
     documents = get_all_documents()
     return render_template("history.html", documents=documents)
+
+
+@app.route("/review/<int:doc_id>")
+def review(doc_id):
+    doc = get_document(doc_id)
+    if not doc:
+        return "Not found", 404
+    detections = json.loads(doc["detections"]) if doc["detections"] else []
+    return render_template("review.html", doc=doc, detections=detections)
 
 
 @app.route("/api/documents")

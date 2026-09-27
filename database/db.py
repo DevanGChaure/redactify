@@ -61,7 +61,8 @@ def init_db():
             pii_count INTEGER DEFAULT 0,
             created_at TEXT DEFAULT CURRENT_TIMESTAMP,
             redacted_filename TEXT,
-            extracted_text TEXT
+            extracted_text TEXT,
+            detections TEXT
         )
     """)
     conn.commit()
@@ -73,6 +74,16 @@ def update_extracted_text(doc_id, text, status="extracted"):
     conn.execute(
         "UPDATE documents SET extracted_text = ?, status = ? WHERE id = ?",
         (text, status, doc_id),
+    )
+    conn.commit()
+    conn.close()
+
+
+def update_pii_detections(doc_id, detections_json):
+    conn = get_connection()
+    conn.execute(
+        "UPDATE documents SET detections = ? WHERE id = ?",
+        (detections_json, doc_id),
     )
     conn.commit()
     conn.close()
