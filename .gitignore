@@ -1,0 +1,7 @@
+redactify/
+uploads/
+outputs/
+__pycache__/
+.pytest_cache/
+redactify.db
+*.pyc
