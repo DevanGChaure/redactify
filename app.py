@@ -2,12 +2,13 @@ import os
 import uuid
 from flask import Flask, render_template, request, redirect, url_for, jsonify
 
-from database.db import init_db, insert_document, get_all_documents, get_document
-
+from database.db import init_db, insert_document, get_all_documents, get_document, update_extracted_text
 from redaction.detector import extract_text
+
+from redaction.regex_detector import detect_regex_pii
 from database.db import (
     init_db, insert_document, get_all_documents,
-    get_document, update_extracted_text
+    get_document, update_extracted_text, update_pii_count
 )
 
 app = Flask(__name__)
@@ -15,14 +16,21 @@ app.config["UPLOAD_FOLDER"] = os.path.join(os.path.dirname(__file__), "uploads")
 
 ALLOWED_EXTENSIONS = {"pdf", "png", "jpg", "jpeg"}
 
+COMMIT = os.getenv("RENDER_GIT_COMMIT", "local")[:7]
+
 
 def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
+@app.context_processor
+def inject_commit():
+    return {"commit": COMMIT}
+
+
 @app.route("/")
 def home():
-    documents = get_all_documents()[:5]  # recent 5
+    documents = get_all_documents()[:5]
     return render_template("index.html", documents=documents)
 
 
@@ -48,7 +56,9 @@ def upload():
     try:
         text = extract_text(saved_path)
         update_extracted_text(doc_id, text, status="extracted")
-    except Exception as e:
+        detections = detect_regex_pii(text)
+        update_pii_count(doc_id, len(detections))
+    except Exception:
         update_extracted_text(doc_id, "", status="extraction_failed")
 
     return redirect(url_for("history"))
@@ -67,10 +77,9 @@ def api_documents():
 
 @app.route("/health")
 def health():
-    commit = os.environ.get("RENDER_GIT_COMMIT", "local-dev")
-    return jsonify({"status": "ok", "commit": commit})
+    return jsonify({"status": "ok"})
 
 
 if __name__ == "__main__":
     init_db()
-    app.run(debug=True, port=5000)
+    app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5000)), debug=True)
