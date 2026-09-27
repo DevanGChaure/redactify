@@ -11,6 +11,8 @@ from database.db import (
     get_document, update_extracted_text, update_pii_count
 )
 
+from redaction.detector import extract_text, detect_all_pii
+
 app = Flask(__name__)
 app.config["UPLOAD_FOLDER"] = os.path.join(os.path.dirname(__file__), "uploads")
 
@@ -56,7 +58,7 @@ def upload():
     try:
         text = extract_text(saved_path)
         update_extracted_text(doc_id, text, status="extracted")
-        detections = detect_regex_pii(text)
+        detections = detect_all_pii(text)
         update_pii_count(doc_id, len(detections))
     except Exception:
         update_extracted_text(doc_id, "", status="extraction_failed")
