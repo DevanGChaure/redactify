@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Securely remove sensitive information before sharing documents</h2>
+<a href="{{ url_for('upload') }}">Upload Document</a>
+
+<h3>Recent Documents</h3>
+<ul>
+    {% for doc in documents %}
+    <li>{{ doc.original_filename }} — {{ doc.pii_count }} PII detected — {{ doc.status }}</li>
+    {% else %}
+    <li>No documents yet</li>
+    {% endfor %}
+</ul>
+{% endblock %}

@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Processing History</h2>
+<table>
+    <tr><th>Document</th><th>PII</th><th>Status</th><th>Created</th></tr>
+    {% for doc in documents %}
+    <tr>
+        <td>{{ doc.original_filename }}</td>
+        <td>{{ doc.pii_count }}</td>
+        <td>{{ doc.status }}</td>
+        <td>{{ doc.created_at }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}
