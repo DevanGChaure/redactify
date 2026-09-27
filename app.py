@@ -9,6 +9,9 @@ from database.db import (
 from redaction.detector import extract_text, detect_all_pii
 app = Flask(__name__)
 app.config["UPLOAD_FOLDER"] = os.path.join(os.path.dirname(__file__), "uploads")
+os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
+
+init_db()
 
 ALLOWED_EXTENSIONS = {"pdf", "png", "jpg", "jpeg"}
 
@@ -77,5 +80,4 @@ def health():
 
 
 if __name__ == "__main__":
-    init_db()
     app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5000)), debug=True)

@@ -1,0 +1,9 @@
+redactify/
+venv/
+__pycache__/
+.pytest_cache/
+uploads/
+outputs/
+redactify.db
+.git/
+*.pyc
